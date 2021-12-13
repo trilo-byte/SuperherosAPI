@@ -1,0 +1,6 @@
+X - Regenerar el ErrorDTO en API Rest
+X - Aspecto que trace el tiempo de cada operación
+X - Caché
+X - Security
+¿? - Config Swagger (teemos dos opciones, desde el yml o escaneando codigo)
+- Intercionalizacion mensajes

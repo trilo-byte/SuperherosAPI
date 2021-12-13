@@ -1,0 +1,20 @@
+#see for java tunning https://docs.oracle.com/cd/E15523_01/web.1111/e13814/jvm_tuning.htm#PERFM161
+version: '3.8'
+services:
+
+ ##########################################################################     
+ #superheros service
+ ##########################################################################  
+  superheros:
+    container_name: mic-superheros
+    image: porryman/microservice-docker-micsuperheros-api-rest:0.0.1-SNAPSHOT
+    environment:
+       - JAVA_OPTS=
+         -Xms256M 
+         -Xmx256M
+    ports:
+      - 8083:8083 
+
+
+
+    

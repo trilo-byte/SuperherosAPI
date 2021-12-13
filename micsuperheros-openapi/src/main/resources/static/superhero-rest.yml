@@ -1,0 +1,370 @@
+openapi: 3.0.1
+info:
+  title: Superheros API
+  description: API to be consumed as part of a challenge
+  version: 1.0.0
+  contact:
+    name: Antonio Otero Andria
+    email: a.otero.andria@gmail.com
+tags:
+  - name: Superheros
+paths:
+  '/superheros/{id}':
+    parameters:
+      - schema:
+          type: integer
+          format: int64
+          example: 1
+        name: id
+        in: path
+        required: true
+        description: The identifier of a superhero
+    get:
+      tags:
+        - Superheros
+      summary: Get a superhero using the Id
+      description: It retrieves the superhero by its ID from database
+      operationId: getSuperHero
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Superhero'
+              examples:
+                example-1:
+                  value:
+                    id: 1
+                    name: Thor
+                    universe: marvel
+                    superpowers:
+                      - Storm Manipulation
+                      - Strength
+                      - Flight
+                      - Speed
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Superheros
+      summary: Update a Superhero
+      description: The response returns the superheroId
+      operationId: updateSuperHero
+      requestBody:
+        description: The body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SuperheroReq'
+            examples:
+              example-1:
+                value:
+                  name: Thor
+                  universe: marvel
+                  superpowers:
+                    - Storm Manipulation
+                    - Strength
+                    - Flight
+                    - Speed
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Superhero'
+              examples:
+                example-1:
+                  value:
+                    id: 1
+                    name: Thor
+                    universe: marvel
+                    superpowers:
+                      - Storm Manipulation
+                      - Strength
+                      - Flight
+                      - Speed
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500'
+    delete:
+      tags:
+        - Superheros
+      summary: Removes a superhero by its Id
+      description: deletes a superhero
+      operationId: deleteSuperhero
+      responses:
+        '204':
+          description: No Content
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'          
+  /superheros:
+    get:
+      tags:
+        - Superheros
+      summary: Get a superhero using the name
+      description: It retrieves the superhero/s if the name is part of their names
+      operationId: getSuperHeroByName
+      parameters:
+        - schema:
+            type: string
+            example: spider
+          in: query
+          name: name
+          description: The name of a superhero
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Superhero'
+              examples:
+                example-1:
+                  value:
+                    - id: 1
+                      name: Thor
+                      universe: marvel
+                      superpowers:
+                        - Storm Manipulation
+                        - Strength
+                        - Flight
+                        - Speed
+                    - id: 2
+                      name: SpiderMan
+                      universe: marvel
+                      superpowers:
+                        - Agility
+                        - Strength
+                        - Speed
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+    post:
+      tags:
+        - Superheros
+      summary: Adds a Superhero
+      description: The response returns the superhoreo identifier
+      operationId: addSuperhero
+      requestBody:
+        description: The body with the superhero info
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SuperheroReq'
+            examples:
+              example-1:
+                value:
+                  name: Thor
+                  universe: marvel
+                  superpowers:
+                    - Storm Manipulation
+                    - Strength
+                    - Flight
+                    - Speed
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Superhero'
+              examples: {}
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: UUID of this error
+          format: uuid
+          example: 4c3a5767-4973-44b0-a9c2-b8cf1b34373a
+          readOnly: true
+        method:
+          type: string
+          example: GET
+          description: HTTP method with which this request was made
+          readOnly: true
+        path:
+          type: string
+          format: uri-reference
+          example: /superheros
+          description: Path of this request
+          readOnly: true
+        status:
+          type: integer
+          example: 500
+          format: int32
+          description: Https status code
+          readOnly: true
+        description:
+          type: string
+          example: 'An error occurred when updating a superhero. Please try again later, and if the problem persists, contact the supercustomer services department'
+          description: Message with the error explained
+      required:
+        - uuid
+        - status
+        - description
+    SuperheroReq:
+      type: object
+      description: A superhero data
+      properties:
+        name:
+          type: string
+          description: The name of the superhero
+          example: Thor
+          minLength: 1
+        universe:
+          $ref: '#/components/schemas/UniverseType'
+        superpowers:
+          type: array
+          description: A list of super power the superhero has
+          minItems: 1
+          example:
+            - Storm Manipulation
+            - Strength
+            - Flight
+            - Speed
+          items:
+            type: string
+            description: The super power
+            minLength: 1
+      required:
+        - name
+        - universe
+        - superpowers
+    Superhero:
+      description: A superhero data
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+              description: The id of the superhero
+              example: 1
+              readOnly: true
+          required:
+            - id
+        - $ref: '#/components/schemas/SuperheroReq'
+    UniverseType:
+      type: string
+      enum:
+        - marvel
+        - dc comics
+        - other
+      example: marvel
+      description: The name of the universe of the superhero belogs to
+  parameters: {}
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+  responses:
+    '400':
+      description: 'Bad Request, Superhero ID invalid or JSON body error.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            example-1:
+              value:
+                uuid: 4c3a5767-4973-44b0-a9c2-b8cf1b34373a
+                method: POST
+                path: /superheros
+                status: 400
+                description: 'universe: cannot be null'
+    '401':
+      description: Authorization information is missing or invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            example-1:
+              value:
+                uuid: 4c3a5767-4973-44b0-a9c2-b8cf1b34373a
+                method: GET
+                path: /superheros
+                status: 401
+                description: Unauthorized
+    '403':
+      description: User permissions is not enough.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            example-1:
+              value:
+                uuid: 4c3a5767-4973-44b0-a9c2-b8cf1b34373a
+                method: GET
+                path: /superheros
+                status: 403
+                description: Forbidden
+    '404':
+      description: A Superhero with the specified ID was not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            example-1:
+              value:
+                uuid: 4c3a5767-4973-44b0-a9c2-b8cf1b34373a
+                method: GET
+                path: /superheros/8888
+                status: 404
+                description: Id not found
+    '500':
+      description: Unexpected error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+security:
+  - basicAuth: []
+servers:
+  - url: 'http://localhost:8083'
+    description: Local
