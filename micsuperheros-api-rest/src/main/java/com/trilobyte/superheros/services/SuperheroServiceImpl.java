@@ -3,6 +3,7 @@ package com.trilobyte.superheros.services;
 import com.trilobyte.superheros.config.CacheSpringConfig;
 import com.trilobyte.superheros.dto.SuperheroDto;
 import com.trilobyte.superheros.dto.SuperheroReqDto;
+import com.trilobyte.superheros.exceptions.HeroNotFoundException;
 import com.trilobyte.superheros.mappers.SuperheroMapper;
 import com.trilobyte.superheros.persistence.entities.SuperheroEntity;
 import com.trilobyte.superheros.persistence.repository.SuperherosRepository;
@@ -29,7 +30,10 @@ public class SuperheroServiceImpl implements SuperheroService {
   @Override
   @Cacheable(value = CacheSpringConfig.SUPERHEROS_BY_ID, key = "#id")
   public SuperheroDto findById(final Long id) {
-    return null;
+
+    final SuperheroEntity result =
+            repository.findById(id).orElseThrow(() -> new HeroNotFoundException("Id not found"));
+    return mapper.toDto(result);
   }
 
   @Override
