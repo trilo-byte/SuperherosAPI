@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Validated
@@ -82,6 +83,11 @@ public class SuperheroServiceImpl implements SuperheroService {
             condition = "#result == true")
       })
   public boolean delete(final Long id) {
-    return false;
+    final Optional<SuperheroEntity> entity = repository.findById(id);
+    if (entity.isEmpty()) {
+      return false;
+    }
+    repository.delete(entity.get());
+    return true;
   }
 }

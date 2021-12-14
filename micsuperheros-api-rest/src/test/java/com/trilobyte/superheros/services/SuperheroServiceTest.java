@@ -264,6 +264,8 @@ public class SuperheroServiceTest {
   public void delete_returnsTrue_whenSuccessDeletion() {
     // Given
     final Long superHeroId = 1L;
+    final SuperheroEntity entity = new SuperheroEntity();
+    given(repository.findById(anyLong())).willReturn(Optional.of(entity));
 
     // When
     boolean response = service.delete(superHeroId);
