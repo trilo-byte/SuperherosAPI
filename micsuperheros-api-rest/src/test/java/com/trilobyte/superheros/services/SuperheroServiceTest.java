@@ -1,6 +1,7 @@
 package com.trilobyte.superheros.services;
 
 import com.trilobyte.superheros.dto.SuperheroDto;
+import com.trilobyte.superheros.dto.SuperheroReqDto;
 import com.trilobyte.superheros.dto.UniverseTypeDto;
 import com.trilobyte.superheros.exceptions.HeroNotFoundException;
 import com.trilobyte.superheros.mappers.SuperheroMapper;
@@ -153,6 +154,39 @@ public class SuperheroServiceTest {
     // Then
     then(mapper).should(never()).toDto(anyList());
     Assertions.assertEquals("Id not found", thrown.getMessage());
+  }
+
+  @Test
+  public void save_returnsSuperhero_whenSuperheroIsAdded() {
+    // Given
+    final String name = "anyName";
+    final String universe = "other";
+    final List<String> superpowers= Arrays.asList("Flight");
+    final SuperheroEntity hero = new SuperheroEntity();
+    hero.setName(name);
+    hero.setUniverse(universe);
+    hero.setSuperpowers(superpowers);
+    final SuperheroDto heroDto = new SuperheroDto();
+    heroDto.setName(name);
+    heroDto.setUniverse(UniverseTypeDto.fromValue(universe));
+    heroDto.setSuperpowers(superpowers);
+    given(repository.save(any(SuperheroEntity.class))).willReturn(hero);
+    given(mapper.toEntity(any(SuperheroDto.class))).willReturn(hero);
+    given(mapper.toDto(any(SuperheroEntity.class))).willReturn(heroDto);
+    given(mapper.toDto(any(SuperheroReqDto.class))).willReturn(heroDto);
+
+    // When
+    final SuperheroDto response = service.save(new SuperheroReqDto());
+
+    // Then
+    then(repository).should().save(any(SuperheroEntity.class));
+    then(mapper).should(times(1)).toDto(any(SuperheroEntity.class));
+    then(mapper).should().toEntity(any(SuperheroDto.class));
+    then(mapper).should().toDto(any(SuperheroReqDto.class));
+    assertThat(response).isNotNull();
+    assertEquals(response.getName(), name);
+    assertEquals(response.getUniverse().getValue(), universe);
+    assertThat(!response.getSuperpowers().isEmpty());
   }
 
 }
