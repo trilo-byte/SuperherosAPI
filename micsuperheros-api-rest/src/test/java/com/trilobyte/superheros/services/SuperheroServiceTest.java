@@ -3,6 +3,7 @@ package com.trilobyte.superheros.services;
 import com.trilobyte.superheros.dto.SuperheroDto;
 import com.trilobyte.superheros.dto.SuperheroReqDto;
 import com.trilobyte.superheros.dto.UniverseTypeDto;
+import com.trilobyte.superheros.exceptions.ApplicationException;
 import com.trilobyte.superheros.exceptions.HeroNotFoundException;
 import com.trilobyte.superheros.mappers.SuperheroMapper;
 import com.trilobyte.superheros.persistence.entities.SuperheroEntity;
@@ -13,10 +14,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.TransactionException;
 
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -31,12 +35,14 @@ import static org.mockito.BDDMockito.*;
 @ContextConfiguration(classes = {SuperheroServiceTest.class})
 public class SuperheroServiceTest {
 
-  @Mock private SuperherosRepository repository;
+  @Mock
+  private SuperherosRepository repository;
 
   @Spy
   private SuperheroMapper mapper;
 
-  @InjectMocks private SuperheroService service = new SuperheroServiceImpl();
+  @InjectMocks
+  private SuperheroService service = new SuperheroServiceImpl();
 
   @Test
   public void findAll_withName_returnsEmptyList_whenNoSuperheroAdded() {
@@ -75,8 +81,8 @@ public class SuperheroServiceTest {
     then(mapper).should().toDto(anyList());
     assertThat(response).isNotNull();
     assertThat(response).hasSize(1);
-    assertEquals(response.get(0).getName(), name);
-    assertEquals(response.get(0).getUniverse().getValue(), universe);
+    assertEquals(name, response.get(0).getName());
+    assertEquals(universe, response.get(0).getUniverse().getValue());
   }
 
   @Test
@@ -106,10 +112,10 @@ public class SuperheroServiceTest {
     then(mapper).should(times(1)).toDto(anyList());
     assertThat(response).isNotNull();
     assertThat(response).hasSize(2);
-    assertEquals(response.get(0).getName(), name);
-    assertEquals(response.get(0).getUniverse().getValue(), universe);
-    assertEquals(response.get(1).getName(), name2);
-    assertEquals(response.get(1).getUniverse().getValue(), universe2);
+    assertEquals(name, response.get(0).getName());
+    assertEquals(universe, response.get(0).getUniverse().getValue());
+    assertEquals(name2, response.get(1).getName());
+    assertEquals(universe2, response.get(1).getUniverse().getValue());
   }
 
   @Test
@@ -134,8 +140,8 @@ public class SuperheroServiceTest {
     then(repository).should().findById(anyLong());
     then(mapper).should().toDto(any(SuperheroEntity.class));
     assertThat(response).isNotNull();
-    assertEquals(response.getName(), name);
-    assertEquals(response.getUniverse().getValue(), universe);
+    assertEquals(name, response.getName());
+    assertEquals(universe, response.getUniverse().getValue());
   }
 
   @Test
@@ -143,7 +149,7 @@ public class SuperheroServiceTest {
     // Given
     given(repository.findById(anyLong())).willReturn(Optional.empty());
 
-    // Action
+    // When
     final HeroNotFoundException thrown =
             Assertions.assertThrows(
                     HeroNotFoundException.class,
@@ -184,9 +190,50 @@ public class SuperheroServiceTest {
     then(mapper).should().toEntity(any(SuperheroDto.class));
     then(mapper).should().toDto(any(SuperheroReqDto.class));
     assertThat(response).isNotNull();
-    assertEquals(response.getName(), name);
-    assertEquals(response.getUniverse().getValue(), universe);
+    assertEquals(name, response.getName());
+    assertEquals(universe, response.getUniverse().getValue());
     assertThat(!response.getSuperpowers().isEmpty());
+  }
+
+  @Test
+  public void update_returnsSuperhero_whenExistingSuperhero() {
+    // Given
+    final Long superHeroId = 1L;
+    final String superpower = "fly";
+    final String name = "anyName";
+    final String universe = "other";
+    final List<String> superPowers = Arrays.asList(superpower);
+    final SuperheroReqDto reqDto = new SuperheroReqDto();
+    reqDto.setName(name);
+    reqDto.setUniverse(UniverseTypeDto.fromValue(universe));
+    reqDto.setSuperpowers(superPowers);
+    final SuperheroDto dto = new SuperheroDto();
+    dto.setName(name);
+    dto.setUniverse(UniverseTypeDto.fromValue(universe));
+    dto.setSuperpowers(superPowers);
+
+    final SuperheroEntity entity = new SuperheroEntity();
+    entity.setId(superHeroId);
+    entity.setName(name);
+    entity.setUniverse(universe);
+    entity.setSuperpowers(superPowers);
+    given(mapper.toEntity(any(SuperheroDto.class))).willReturn(entity);
+    given(mapper.toDto(any(SuperheroEntity.class))).willReturn(dto);
+    given(mapper.toDto(any(SuperheroReqDto.class))).willReturn(dto);
+    given(repository.save(any(SuperheroEntity.class))).willReturn(entity);
+
+    // When
+    final SuperheroDto response = service.update(superHeroId, reqDto);
+
+    // Then
+    then(mapper).should().toEntity(any(SuperheroDto.class));
+    then(mapper).should().toDto(any(SuperheroEntity.class));
+    then(mapper).should().toDto(any(SuperheroReqDto.class));
+    then(repository).should().save(any(SuperheroEntity.class));
+    assertEquals(name, response.getName());
+    assertEquals(universe, response.getUniverse().getValue());
+    assertEquals(1, response.getSuperpowers().size());
+    assertEquals(superpower, response.getSuperpowers().get(0));
   }
 
 }

@@ -57,7 +57,9 @@ public class SuperheroServiceImpl implements SuperheroService {
   @CachePut(value = CacheSpringConfig.SUPERHEROS_BY_ID, key = "#result.id")
   @CacheEvict(value = CacheSpringConfig.SUPERHEROS_BY_NAME, allEntries = true)
   public SuperheroDto save(final SuperheroReqDto dto) {
-    return null;
+    final SuperheroEntity entity = mapper.toEntity(mapper.toDto(dto));
+    final SuperheroEntity result = repository.save(entity);
+    return mapper.toDto(result);
   }
 
   @Override
