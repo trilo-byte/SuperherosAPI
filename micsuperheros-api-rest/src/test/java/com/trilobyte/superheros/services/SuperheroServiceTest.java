@@ -260,4 +260,31 @@ public class SuperheroServiceTest {
     Assertions.assertEquals("Id not found", thrown.getMessage());
   }
 
+  @Test
+  public void delete_returnsTrue_whenSuccessDeletion() {
+    // Given
+    final Long superHeroId = 1L;
+
+    // When
+    boolean response = service.delete(superHeroId);
+
+    // Then
+    then(repository).should().delete(any(SuperheroEntity.class));
+    assertEquals(true, response);
+  }
+
+  @Test
+  public void delete_returnsFalse_whenIdIsNotFound() {
+    // Given
+    final Long superHeroId = 1L;
+    given(repository.findById(anyLong())).willReturn(Optional.empty());
+
+    // When
+    boolean response = service.delete(superHeroId);
+
+    // Then
+    then(repository).should(never()).delete(any(SuperheroEntity.class));
+    assertEquals(false, response);
+  }
+
 }
