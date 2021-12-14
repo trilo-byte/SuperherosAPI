@@ -236,4 +236,31 @@ public class SuperheroServiceTest {
     assertEquals(superpower, response.getSuperpowers().get(0));
   }
 
+  @Test
+  public void update_throwsException_whenIdIsNotPresent() {
+    // Given
+    final Long superHeroId = 1L;
+    final String superpower = "fly";
+    final String name = "anyName";
+    final String universe = "other";
+    final SuperheroReqDto reqDto = new SuperheroReqDto();
+    reqDto.setName(name);
+    reqDto.setUniverse(UniverseTypeDto.fromValue(universe));
+    reqDto.setSuperpowers(Arrays.asList(superpower));
+    given(repository.existsById(anyLong())).willReturn(false);
+
+    // When
+    final HeroNotFoundException thrown =
+            Assertions.assertThrows(
+                    HeroNotFoundException.class,
+                    () -> {
+                      service.update(superHeroId, reqDto);
+                    });
+
+    // Then
+    then(mapper).should(never()).toDto(anyList());
+    then(repository).should(never()).save(any(SuperheroEntity.class));
+    Assertions.assertEquals("Id not found", thrown.getMessage());
+  }
+
 }
