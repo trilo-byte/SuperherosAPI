@@ -13,7 +13,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -58,8 +58,7 @@ public class SuperheroServiceTest {
     hero.setName(name);
     hero.setUniverse(UniverseTypeDto.fromValue(universe));
     hero.setSuperpowers(Collections.emptyList());
-    final List<SuperheroDto> list = new ArrayList<>();
-    list.add(hero);
+    final List<SuperheroDto> list = Arrays.asList(hero);
     given(repository.findAll(any(Specification.class))).willReturn(list);
     given(mapper.toDto(anyList())).willReturn(list);
 
@@ -73,6 +72,39 @@ public class SuperheroServiceTest {
     assertThat(response).hasSize(1);
     assertEquals(response.get(0).getName(), name);
     assertEquals(response.get(0).getUniverse().getValue(), universe);
+  }
+
+  @Test
+  public void findAll_withName_returnsMultipleSuperhero_whenMultipleMatches() {
+    // Given
+    final String name = "anyName";
+    final String universe = "other";
+    final String name2 = "anyName2";
+    final String universe2 = "other";
+    final SuperheroDto hero = new SuperheroDto();
+    hero.setName(name);
+    hero.setUniverse(UniverseTypeDto.fromValue(universe));
+    hero.setSuperpowers(Collections.emptyList());
+    final SuperheroDto hero2 = new SuperheroDto();
+    hero2.setName(name2);
+    hero2.setUniverse(UniverseTypeDto.fromValue(universe2));
+    hero2.setSuperpowers(Collections.emptyList());
+    final List<SuperheroDto> list = Arrays.asList(hero, hero2);
+    given(repository.findAll(any(Specification.class))).willReturn(list);
+    given(mapper.toDto(anyList())).willReturn(list);
+
+    // When
+    final List<SuperheroDto> response = service.findAll(name);
+
+    // Then
+    then(repository).should().findAll(any(Specification.class));
+    then(mapper).should(times(1)).toDto(anyList());
+    assertThat(response).isNotNull();
+    assertThat(response).hasSize(2);
+    assertEquals(response.get(0).getName(), name);
+    assertEquals(response.get(0).getUniverse().getValue(), universe);
+    assertEquals(response.get(1).getName(), name2);
+    assertEquals(response.get(1).getUniverse().getValue(), universe2);
   }
 
 }
