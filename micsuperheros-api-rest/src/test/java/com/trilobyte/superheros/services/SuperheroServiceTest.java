@@ -2,8 +2,11 @@ package com.trilobyte.superheros.services;
 
 import com.trilobyte.superheros.dto.SuperheroDto;
 import com.trilobyte.superheros.dto.UniverseTypeDto;
+import com.trilobyte.superheros.exceptions.HeroNotFoundException;
 import com.trilobyte.superheros.mappers.SuperheroMapper;
+import com.trilobyte.superheros.persistence.entities.SuperheroEntity;
 import com.trilobyte.superheros.persistence.repository.SuperherosRepository;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,6 +19,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -105,6 +109,50 @@ public class SuperheroServiceTest {
     assertEquals(response.get(0).getUniverse().getValue(), universe);
     assertEquals(response.get(1).getName(), name2);
     assertEquals(response.get(1).getUniverse().getValue(), universe2);
+  }
+
+  @Test
+  public void findById_returnsAHero_whenIdIsPresent() {
+    // Given
+    final String name = "anyName";
+    final String universe = "other";
+    final SuperheroDto hero = new SuperheroDto();
+    hero.setName(name);
+    hero.setUniverse(UniverseTypeDto.fromValue(universe));
+    hero.setSuperpowers(Collections.emptyList());
+    final SuperheroEntity heroEntity = new SuperheroEntity();
+    heroEntity.setName(name);
+    heroEntity.setUniverse(universe);
+    given(repository.findById(anyLong())).willReturn(Optional.of(heroEntity));
+    given(mapper.toDto(any(SuperheroEntity.class))).willReturn(hero);
+
+    // When
+    final SuperheroDto response = service.findById(1L);
+
+    // Then
+    then(repository).should().findById(anyLong());
+    then(mapper).should().toDto(any(SuperheroEntity.class));
+    assertThat(response).isNotNull();
+    assertEquals(response.getName(), name);
+    assertEquals(response.getUniverse().getValue(), universe);
+  }
+
+  @Test
+  public void findById_returnsNoHero_whenIdNotPresent() {
+    // Given
+    given(repository.findById(anyLong())).willReturn(Optional.empty());
+
+    // Action
+    final HeroNotFoundException thrown =
+            Assertions.assertThrows(
+                    HeroNotFoundException.class,
+                    () -> {
+                      service.findById(1L);
+                    });
+
+    // Then
+    then(mapper).should(never()).toDto(anyList());
+    Assertions.assertEquals("Id not found", thrown.getMessage());
   }
 
 }
