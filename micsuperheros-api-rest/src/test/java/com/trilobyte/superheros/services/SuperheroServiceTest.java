@@ -3,7 +3,6 @@ package com.trilobyte.superheros.services;
 import com.trilobyte.superheros.dto.SuperheroDto;
 import com.trilobyte.superheros.dto.SuperheroReqDto;
 import com.trilobyte.superheros.dto.UniverseTypeDto;
-import com.trilobyte.superheros.exceptions.ApplicationException;
 import com.trilobyte.superheros.exceptions.HeroNotFoundException;
 import com.trilobyte.superheros.mappers.SuperheroMapper;
 import com.trilobyte.superheros.persistence.entities.SuperheroEntity;
@@ -14,13 +13,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.springframework.dao.DataAccessException;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.transaction.TransactionException;
 
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -221,6 +217,7 @@ public class SuperheroServiceTest {
     given(mapper.toDto(any(SuperheroEntity.class))).willReturn(dto);
     given(mapper.toDto(any(SuperheroReqDto.class))).willReturn(dto);
     given(repository.save(any(SuperheroEntity.class))).willReturn(entity);
+    given(repository.existsById(anyLong())).willReturn(true);
 
     // When
     final SuperheroDto response = service.update(superHeroId, reqDto);
