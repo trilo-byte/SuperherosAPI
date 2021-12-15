@@ -57,6 +57,31 @@ public class SuperheroControllerTest {
                 .andExpect(jsonPath("$.superpowers[0]", is(superpower)));
     }
 
+    @Test
+    public void givenAInValidId_whenGetById_thenReturnsA404() throws Exception {
+        final long id = 1l;
+
+        mvc.perform(get("/superheros/"+id).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void givenNoIdAndNoName_whenGetById_thenReturnsASuperhero() throws Exception {
+        final String name = "superman";
+        final String universe = "other";
+        final String superpower = "Flight";
+        createSuperHeroEntity(name, universe, superpower);
+
+        mvc.perform(get("/superheros/").contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].name", is(name)))
+                .andExpect(jsonPath("$[0].universe", is(universe)))
+                .andExpect(jsonPath("$[0].superpowers[0]", is(superpower)));
+    }
+
     private void createSuperHeroEntity(String name, String universe, String superpower) {
 
         SuperheroEntity superheroEntity = new SuperheroEntity();
