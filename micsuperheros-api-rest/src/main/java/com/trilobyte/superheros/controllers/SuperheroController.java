@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import java.util.List;
@@ -37,7 +38,7 @@ public class SuperheroController implements SuperherosApiDelegate {
 
   @Override
   public ResponseEntity<List<SuperheroDto>> getSuperHeroByName(final String name) {
-    return new ResponseEntity<List<SuperheroDto>>(HttpStatus.NOT_IMPLEMENTED);
+    return ResponseEntity.ok(superheroSrv.findAll(StringUtils.hasText(name) ? name : ""));
   }
 
   @Override
