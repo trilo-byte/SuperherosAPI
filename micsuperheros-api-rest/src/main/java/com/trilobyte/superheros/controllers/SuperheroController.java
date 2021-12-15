@@ -58,6 +58,6 @@ public class SuperheroController implements SuperherosApiDelegate {
   @PreAuthAdmin
   public ResponseEntity<SuperheroDto> updateSuperHero(
       final Long superheroId, final SuperheroReqDto superheroReqDto) {
-    return new ResponseEntity<SuperheroDto>(HttpStatus.NOT_IMPLEMENTED);
+    return ResponseEntity.ok(superheroSrv.update(superheroId, superheroReqDto));
   }
 }
