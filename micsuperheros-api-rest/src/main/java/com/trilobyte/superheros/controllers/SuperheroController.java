@@ -50,7 +50,8 @@ public class SuperheroController implements SuperherosApiDelegate {
   @Override
   @PreAuthAdmin
   public ResponseEntity<Void> deleteSuperhero(final Long superheroId) {
-    return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+    superheroSrv.delete(superheroId);
+    return ResponseEntity.noContent().build();
   }
 
   @Override

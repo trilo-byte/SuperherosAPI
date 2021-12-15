@@ -222,6 +222,44 @@ public class SuperheroControllerTest {
                 .andExpect(status().isMethodNotAllowed());
     }
 
+    @Test
+    public void givenAValidSuperhero_whenUpdateSuperhero_thenReturnsASuperhero() throws Exception {
+        final String name = "superman";
+        final String universe = "other";
+        final String universe2 = "marvel";
+        final String superpower = "Flight";
+
+        createSuperHeroEntity(name, universe, superpower);
+        SuperheroReqDto reqDto = createSuperHeroReqDto(name.concat("2"), universe2, superpower);
+        ObjectMapper mapper = new ObjectMapper();
+        final String reqDtoJson = mapper.writeValueAsString(reqDto);
+
+        mvc.perform(put("/superheros/1").contentType(MediaType.APPLICATION_JSON)
+                        .content(reqDtoJson))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.name", is(name.concat("2"))))
+                .andExpect(jsonPath("$.universe", is(universe2)))
+                .andExpect(jsonPath("$.superpowers[0]", is(superpower)));
+    }
+
+    @Test
+    public void givenANonValidSuperhero_whenUpdateSuperhero_thenReturnsNotFound() throws Exception {
+        final String name = "superman";
+        final String universe = "other";
+        final String superpower = "Flight";
+
+        SuperheroReqDto reqDto = createSuperHeroReqDto(name, universe, superpower);
+        ObjectMapper mapper = new ObjectMapper();
+        final String reqDtoJson = mapper.writeValueAsString(reqDto);
+
+        mvc.perform(put("/superheros/1").contentType(MediaType.APPLICATION_JSON)
+                        .content(reqDtoJson))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
     private void createSuperHeroEntity(String name, String universe, String superpower) {
 
         SuperheroEntity superheroEntity = new SuperheroEntity();
