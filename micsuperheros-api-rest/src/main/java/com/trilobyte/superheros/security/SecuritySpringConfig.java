@@ -42,6 +42,7 @@ public class SecuritySpringConfig extends WebSecurityConfigurerAdapter {
         // Request: swagger public
         .antMatchers(
             HttpMethod.GET,
+            "/*-rest.yml",
             "/v3/api-docs",
             "/swagger-resources/**",
             "/swagger-ui/**",

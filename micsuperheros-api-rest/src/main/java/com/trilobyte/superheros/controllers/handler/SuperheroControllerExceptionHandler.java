@@ -1,13 +1,17 @@
 package com.trilobyte.superheros.controllers.handler;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.OptimisticLockException;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.core.NestedRuntimeException;
 import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataAccessException;
@@ -34,6 +38,7 @@ import com.trilobyte.superheros.dto.ErrorDto;
 import com.trilobyte.superheros.exceptions.ApplicationException;
 import com.trilobyte.superheros.exceptions.ApplicationException.ExceptionMessage;
 import com.trilobyte.superheros.exceptions.ValidacionException;
+import com.trilobyte.superheros.utils.MessageUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,6 +46,9 @@ import lombok.extern.slf4j.Slf4j;
 @Order(-10)
 @Slf4j
 public class SuperheroControllerExceptionHandler extends ResponseEntityExceptionHandler {
+
+  @Autowired(required = false)
+  private MessageSource messageSource;
 
   @Override
   protected ResponseEntity<Object> handleExceptionInternal(
@@ -66,7 +74,13 @@ public class SuperheroControllerExceptionHandler extends ResponseEntityException
 
     final var resp = createError(status.value(), getPath(webRequest), getMethod(webRequest));
     String rawMsg = null;
-    if (body != null) {
+    if (ex instanceof ValidacionException) {
+      rawMsg = toTranslateMessage((ValidacionException) ex, messageSource);
+    } else if (ex instanceof ApplicationException) {
+      rawMsg =
+          MessageUtils.translateMessage(
+              messageSource, ((ApplicationException) ex).getExceptionMessage());
+    } else if (body != null) {
       rawMsg = body.toString();
     } else if (ex != null) {
       rawMsg = ex.getMessage();
@@ -139,8 +153,8 @@ public class SuperheroControllerExceptionHandler extends ResponseEntityException
   /* ********************************** */
 
   /**
-   * Handles exceptions in an optimistic lock when validations fail
-   * (For example update a register which field {@code @Version} has changes in other transaction)
+   * Handles exceptions in an optimistic lock when validations fail (For example update a register
+   * which field {@code @Version} has changes in other transaction)
    *
    * @param ex Catched exception
    * @param request request which throws the exception
@@ -166,8 +180,8 @@ public class SuperheroControllerExceptionHandler extends ResponseEntityException
   }
 
   /**
-   * Handles JTA transactions exceptions
-   * (Thrown after a commit or exiting the service, they can not be catch in them)
+   * Handles JTA transactions exceptions (Thrown after a commit or exiting the service, they can not
+   * be catch in them)
    *
    * @param ex Catched exception
    * @param request request which throws the exception
@@ -234,7 +248,8 @@ public class SuperheroControllerExceptionHandler extends ResponseEntityException
    * Handles JDBC (SQL or Transactions) exceptions
    *
    * @param ex exception to be handled
-   * @param defaultStatus status code to be sent as a response if the most significant exception does not have any special treatment
+   * @param defaultStatus status code to be sent as a response if the most significant exception
+   *     does not have any special treatment
    * @param request request which throws the exception
    * @return Response REST
    */
@@ -314,5 +329,21 @@ public class SuperheroControllerExceptionHandler extends ResponseEntityException
     err.setPath(path);
     err.setMethod(method);
     return err;
+  }
+
+  /**
+   * Traduce si procede mensajes de error ${message}
+   *
+   * @param ex Excepción del cual se traducirán sus mensajes
+   * @param messageSource Bundle de mensajes intercionalizados
+   * @return String concatenado por {@code ,} de [Campo, Error traducido]
+   */
+  private static String toTranslateMessage(
+      final ValidacionException ex, final MessageSource messageSource) {
+    final List<String> r = new ArrayList<>();
+    for (final ExceptionMessage msg : ex.getMessages()) {
+      r.add(MessageUtils.translateMessage(messageSource, msg));
+    }
+    return String.join("\n", r);
   }
 }
