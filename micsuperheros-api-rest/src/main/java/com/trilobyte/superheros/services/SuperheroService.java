@@ -18,5 +18,5 @@ public interface SuperheroService {
 
   SuperheroDto save(@NotNull @Valid SuperheroReqDto dto);
 
-  boolean delete(@NotNull Long id);
+  void delete(@NotNull Long id);
 }

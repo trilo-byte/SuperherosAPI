@@ -1,12 +1,23 @@
 package com.trilobyte.superheros.services;
 
-import com.trilobyte.superheros.dto.SuperheroDto;
-import com.trilobyte.superheros.dto.SuperheroReqDto;
-import com.trilobyte.superheros.dto.UniverseTypeDto;
-import com.trilobyte.superheros.exceptions.HeroNotFoundException;
-import com.trilobyte.superheros.mappers.SuperheroMapper;
-import com.trilobyte.superheros.persistence.entities.SuperheroEntity;
-import com.trilobyte.superheros.persistence.repository.SuperherosRepository;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,31 +28,26 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.BDDMockito.*;
+import com.trilobyte.superheros.dto.SuperheroDto;
+import com.trilobyte.superheros.dto.SuperheroReqDto;
+import com.trilobyte.superheros.dto.UniverseTypeDto;
+import com.trilobyte.superheros.exceptions.HeroNotFoundException;
+import com.trilobyte.superheros.mappers.SuperheroMapper;
+import com.trilobyte.superheros.persistence.entities.SuperheroEntity;
+import com.trilobyte.superheros.persistence.repository.SuperherosRepository;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {SuperheroServiceTest.class})
-public class SuperheroServiceTest {
+class SuperheroServiceTest {
 
-  @Mock
-  private SuperherosRepository repository;
+  @Mock private SuperherosRepository repository;
 
-  @Spy
-  private SuperheroMapper mapper;
+  @Spy private SuperheroMapper mapper;
 
-  @InjectMocks
-  private SuperheroService service = new SuperheroServiceImpl();
+  @InjectMocks private SuperheroService service = new SuperheroServiceImpl();
 
   @Test
-  public void findAll_withName_returnsEmptyList_whenNoSuperheroAdded() {
+  void findAll_withName_returnsEmptyList_whenNoSuperheroAdded() {
     // Given
     final String superheroName = "anySuperheroName";
     given(repository.findAll(any(Specification.class))).willReturn(Collections.emptyList());
@@ -52,12 +58,11 @@ public class SuperheroServiceTest {
     // Then
     then(repository).should().findAll(any(Specification.class));
     then(mapper).should().toDto(anyList());
-    assertThat(response).isNotNull();
-    assertThat(response).hasSize(0);
+    assertThat(response).isNotNull().isEmpty();
   }
 
   @Test
-  public void findAll_withName_returnsASuperhero_whenSuperheroMatches() {
+  void findAll_withName_returnsASuperhero_whenSuperheroMatches() {
     // Given
     final String name = "anyName";
     final String universe = "other";
@@ -75,14 +80,13 @@ public class SuperheroServiceTest {
     // Then
     then(repository).should().findAll(any(Specification.class));
     then(mapper).should().toDto(anyList());
-    assertThat(response).isNotNull();
-    assertThat(response).hasSize(1);
+    assertThat(response).isNotNull().hasSize(1);
     assertEquals(name, response.get(0).getName());
     assertEquals(universe, response.get(0).getUniverse().getValue());
   }
 
   @Test
-  public void findAll_withName_returnsMultipleSuperhero_whenMultipleMatches() {
+  void findAll_withName_returnsMultipleSuperhero_whenMultipleMatches() {
     // Given
     final String name = "anyName";
     final String universe = "other";
@@ -106,8 +110,7 @@ public class SuperheroServiceTest {
     // Then
     then(repository).should().findAll(any(Specification.class));
     then(mapper).should(times(1)).toDto(anyList());
-    assertThat(response).isNotNull();
-    assertThat(response).hasSize(2);
+    assertThat(response).isNotNull().hasSize(2);
     assertEquals(name, response.get(0).getName());
     assertEquals(universe, response.get(0).getUniverse().getValue());
     assertEquals(name2, response.get(1).getName());
@@ -115,7 +118,7 @@ public class SuperheroServiceTest {
   }
 
   @Test
-  public void findById_returnsAHero_whenIdIsPresent() {
+  void findById_returnsAHero_whenIdIsPresent() {
     // Given
     final String name = "anyName";
     final String universe = "other";
@@ -141,29 +144,29 @@ public class SuperheroServiceTest {
   }
 
   @Test
-  public void findById_returnsNoHero_whenIdNotPresent() {
+  void findById_returnsNoHero_whenIdNotPresent() {
     // Given
     given(repository.findById(anyLong())).willReturn(Optional.empty());
 
     // When
     final HeroNotFoundException thrown =
-            Assertions.assertThrows(
-                    HeroNotFoundException.class,
-                    () -> {
-                      service.findById(1L);
-                    });
+        Assertions.assertThrows(
+            HeroNotFoundException.class,
+            () -> {
+              service.findById(1L);
+            });
 
     // Then
     then(mapper).should(never()).toDto(anyList());
-    Assertions.assertEquals("Id not found", thrown.getMessage());
+    Assertions.assertEquals("{error.hero.notFound}", thrown.getMessage());
   }
 
   @Test
-  public void save_returnsSuperhero_whenSuperheroIsAdded() {
+  void save_returnsSuperhero_whenSuperheroIsAdded() {
     // Given
     final String name = "anyName";
     final String universe = "other";
-    final List<String> superpowers= Arrays.asList("Flight");
+    final List<String> superpowers = Arrays.asList("Flight");
     final SuperheroEntity hero = new SuperheroEntity();
     hero.setName(name);
     hero.setUniverse(universe);
@@ -188,11 +191,11 @@ public class SuperheroServiceTest {
     assertThat(response).isNotNull();
     assertEquals(name, response.getName());
     assertEquals(universe, response.getUniverse().getValue());
-    assertThat(!response.getSuperpowers().isEmpty());
+    assertThat(response.getSuperpowers()).isNotEmpty();
   }
 
   @Test
-  public void update_returnsSuperhero_whenExistingSuperhero() {
+  void update_returnsSuperhero_whenExistingSuperhero() {
     // Given
     final Long superHeroId = 1L;
     final String superpower = "fly";
@@ -234,7 +237,7 @@ public class SuperheroServiceTest {
   }
 
   @Test
-  public void update_throwsException_whenIdIsNotPresent() {
+  void update_throwsException_whenIdIsNotPresent() {
     // Given
     final Long superHeroId = 1L;
     final String superpower = "fly";
@@ -248,11 +251,11 @@ public class SuperheroServiceTest {
 
     // When
     final HeroNotFoundException thrown =
-            Assertions.assertThrows(
-                    HeroNotFoundException.class,
-                    () -> {
-                      service.update(superHeroId, reqDto);
-                    });
+        Assertions.assertThrows(
+            HeroNotFoundException.class,
+            () -> {
+              service.update(superHeroId, reqDto);
+            });
 
     // Then
     then(mapper).should(never()).toDto(anyList());
@@ -261,32 +264,29 @@ public class SuperheroServiceTest {
   }
 
   @Test
-  public void delete_returnsTrue_whenSuccessDeletion() {
+  void delete_returnsTrue_whenSuccessDeletion() {
     // Given
     final Long superHeroId = 1L;
     final SuperheroEntity entity = new SuperheroEntity();
     given(repository.findById(anyLong())).willReturn(Optional.of(entity));
 
     // When
-    boolean response = service.delete(superHeroId);
+    assertDoesNotThrow(() -> service.delete(superHeroId));
 
     // Then
     then(repository).should().delete(any(SuperheroEntity.class));
-    assertEquals(true, response);
   }
 
   @Test
-  public void delete_returnsFalse_whenIdIsNotFound() {
+  void delete_returnsFalse_whenIdIsNotFound() {
     // Given
     final Long superHeroId = 1L;
     given(repository.findById(anyLong())).willReturn(Optional.empty());
 
     // When
-    boolean response = service.delete(superHeroId);
+    assertThrows(HeroNotFoundException.class, () -> service.delete(superHeroId));
 
     // Then
     then(repository).should(never()).delete(any(SuperheroEntity.class));
-    assertEquals(false, response);
   }
-
 }

@@ -134,7 +134,7 @@
 				<executions>
 					<execution>
 						<id>build-docker-image</id>
-						<phase>package</phase>
+						<phase>deploy</phase>
 						<goals>
 							<goal>build</goal>
 							<goal>push</goal>
@@ -182,8 +182,6 @@
 					</compilerArgs>
 				</configuration>
 			</plugin>
-
-
 		</plugins>
 	</build>
 </project>
