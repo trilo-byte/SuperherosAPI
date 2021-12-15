@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import java.util.List;
@@ -32,30 +33,31 @@ public class SuperheroController implements SuperherosApiDelegate {
 
   @Override
   public ResponseEntity<SuperheroDto> getSuperHero(final Long superheroId) {
-    return new ResponseEntity<SuperheroDto>(HttpStatus.NOT_IMPLEMENTED);
+    return ResponseEntity.ok(superheroSrv.findById(superheroId));
   }
 
   @Override
   public ResponseEntity<List<SuperheroDto>> getSuperHeroByName(final String name) {
-    return new ResponseEntity<List<SuperheroDto>>(HttpStatus.NOT_IMPLEMENTED);
+    return ResponseEntity.ok(superheroSrv.findAll(StringUtils.hasText(name) ? name : ""));
   }
 
   @Override
   @PreAuthAdmin
   public ResponseEntity<SuperheroDto> addSuperhero(final SuperheroReqDto superheroReqDto) {
-    return new ResponseEntity<SuperheroDto>(HttpStatus.NOT_IMPLEMENTED);
+    return ResponseEntity.status(HttpStatus.CREATED).body(superheroSrv.save(superheroReqDto));
   }
 
   @Override
   @PreAuthAdmin
   public ResponseEntity<Void> deleteSuperhero(final Long superheroId) {
-    return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+    superheroSrv.delete(superheroId);
+    return ResponseEntity.noContent().build();
   }
 
   @Override
   @PreAuthAdmin
   public ResponseEntity<SuperheroDto> updateSuperHero(
       final Long superheroId, final SuperheroReqDto superheroReqDto) {
-    return new ResponseEntity<SuperheroDto>(HttpStatus.NOT_IMPLEMENTED);
+    return ResponseEntity.ok(superheroSrv.update(superheroId, superheroReqDto));
   }
 }
