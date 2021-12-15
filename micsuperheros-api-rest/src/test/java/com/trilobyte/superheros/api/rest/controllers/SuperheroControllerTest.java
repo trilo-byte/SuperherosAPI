@@ -1,8 +1,12 @@
 package com.trilobyte.superheros.api.rest.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trilobyte.superheros.SuperherosApplication;
+import com.trilobyte.superheros.dto.SuperheroReqDto;
+import com.trilobyte.superheros.dto.UniverseTypeDto;
 import com.trilobyte.superheros.persistence.entities.SuperheroEntity;
 import com.trilobyte.superheros.persistence.repository.SuperherosRepository;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +23,11 @@ import java.util.Arrays;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = SuperherosApplication.class)
@@ -162,6 +169,40 @@ public class SuperheroControllerTest {
                 .andExpect(jsonPath("$", hasSize(equalTo(0))));
     }
 
+    @Test
+    public void givenAValidSuperhero_whenAddSuperhero_thenReturnsASuperhero() throws Exception {
+        final String name = "superman";
+        final String universe = "other";
+        final String superpower = "Flight";
+        SuperheroReqDto reqDto = createSuperHeroReqDto(name, universe, superpower);
+        ObjectMapper mapper = new ObjectMapper();
+        final String reqDtoJson = mapper.writeValueAsString(reqDto);
+
+        mvc.perform(post("/superheros").contentType(MediaType.APPLICATION_JSON)
+                        .content(reqDtoJson))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.name", is(name)))
+                .andExpect(jsonPath("$.universe", is(universe)))
+                .andExpect(jsonPath("$.superpowers[0]", is(superpower)));
+    }
+
+    @Test
+    public void givenANoValidSuperhero_whenAddSuperhero_thenReturnsBadRequest() throws Exception {
+        final String name = "superman";
+        final String universe = "other";
+        final String superpower = "Flight";
+        SuperheroReqDto reqDto = createSuperHeroReqDto(name, universe, superpower);
+        ObjectMapper mapper = new ObjectMapper();
+        final String reqDtoJson = mapper.writeValueAsString(reqDto).replace(universe, "anyUniverse");
+
+        mvc.perform(post("/superheros").contentType(MediaType.APPLICATION_JSON)
+                        .content(reqDtoJson))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
     private void createSuperHeroEntity(String name, String universe, String superpower) {
 
         SuperheroEntity superheroEntity = new SuperheroEntity();
@@ -172,6 +213,13 @@ public class SuperheroControllerTest {
         repository.save(superheroEntity);
     }
 
+    private SuperheroReqDto createSuperHeroReqDto(String name, String universe, String superpower) {
 
+        SuperheroReqDto superheroReqDto = new SuperheroReqDto();
+        superheroReqDto.setName(name);
+        superheroReqDto.setUniverse(UniverseTypeDto.fromValue(universe));
+        superheroReqDto.setSuperpowers(Arrays.asList(superpower));
 
+        return superheroReqDto;
+    }
 }
