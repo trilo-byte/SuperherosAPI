@@ -44,7 +44,7 @@ public class SuperheroController implements SuperherosApiDelegate {
   @Override
   @PreAuthAdmin
   public ResponseEntity<SuperheroDto> addSuperhero(final SuperheroReqDto superheroReqDto) {
-    return new ResponseEntity<SuperheroDto>(HttpStatus.NOT_IMPLEMENTED);
+    return ResponseEntity.status(HttpStatus.CREATED).body(superheroSrv.save(superheroReqDto));
   }
 
   @Override

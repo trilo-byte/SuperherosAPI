@@ -22,8 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Arrays;
 
 import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -201,6 +200,26 @@ public class SuperheroControllerTest {
                         .content(reqDtoJson))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void givenAValidId_whenDeleteSuperhero_returnsVoid() throws Exception {
+        final long id = 1l;
+        final String name = "superman";
+        final String universe = "other";
+        final String superpower = "Flight";
+        createSuperHeroEntity(name, universe, superpower);
+
+        mvc.perform(delete("/superheros/"+id).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void givenANonValidId_whenDeleteSuperhero_returnsVoid() throws Exception {
+        mvc.perform(delete("/superheros/").contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isMethodNotAllowed());
     }
 
     private void createSuperHeroEntity(String name, String universe, String superpower) {
