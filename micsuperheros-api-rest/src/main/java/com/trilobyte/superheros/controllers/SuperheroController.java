@@ -32,7 +32,7 @@ public class SuperheroController implements SuperherosApiDelegate {
 
   @Override
   public ResponseEntity<SuperheroDto> getSuperHero(final Long superheroId) {
-    return new ResponseEntity<SuperheroDto>(HttpStatus.NOT_IMPLEMENTED);
+    return ResponseEntity.ok(superheroSrv.findById(superheroId));
   }
 
   @Override
