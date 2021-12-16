@@ -4,8 +4,9 @@ A small API for managing superheros as part as a challenge for mindata. It takes
 
 ##  🚀 Getting started
 
-### Dependencies
-- org.springframework.boot
+### Third party libraies
+- Spring Boot 2.5.7 
+Spring Boot is Spring's convention-over-configuration solution for creating stand-alone, production-grade Spring-based Applications that you can "just run".
    - spring-boot-starter-web
    - spring-boot-starter-validation
    - spring-boot-starter-actuator
@@ -14,13 +15,12 @@ A small API for managing superheros as part as a challenge for mindata. It takes
    - spring-boot-starter-cache
    - spring-boot-starter-test
    - spring-boot-maven-plugin
-- io.springfox
-- org.hibernate
-- hibernate-jpamodelgen
-- com.h2database
-- org.flywaydb
-- [Mapstruct](https://mapstruct.org/): Code generator that greatly simplifies the implementation of mappings between Java bean types.
-- org.openapitools
+- Springfox 3.0.0 
+The Springfox suite of java libraries are all about automating the generation of machine and human readable specifications for JSON APIs written using the spring family of projects.
+- [Mapstruct](https://mapstruct.org/) 1.4.2.
+Final Code generator that greatly simplifies the implementation of mappings between Java bean types.
+- openapi- generator
+OpenAPI Generator allows generation of API client libraries (SDK generation), server stubs, documentation and configuration automatically given an OpenAPI Spec (v2, v3) 
 
 ### 🔧 Installation
 
@@ -52,31 +52,31 @@ Or from the IDE you would like
 
 ## 🛠 Technical design
 ### Architecture diagram
-
+![Arquitecture](assets/superherosAPI_Arq.png)
 ### Project structure
 - micsuperheros-api-rest: all core logic
-- micsuperheros-openapi: REST API controller's interfaces and models
+- micsuperheros-openapi: Artifact thats generates REST API controller's interfaces and models from specificationyml, **APIFirst**
 
 ### Layers
 
 This project uses an N-Layer architecture, containing the following packages:
 
-- /aspect: Used to implement the time consumption of service executions
+- /aspect: Aspects layer
 - /config: Spring java-configurations
 - /controllers: Implementation of REST API controllers (REST endpoints).
 - /exceptions: Hierarchy of exceptions specific to the microservice.
 - /mappers: Mapstruct mappers between entities and DTOs.
 - /persistence: entities and repository for data presistence
-- /security: secure resources by roles
-- /services: Services that contain a single responsibility within the application
-- /utils: Used for messages translation
+- /security: Manages configuration for spring security
+- /services: Services which provides two way communication between layers, and manages transactions.
+- /utils: Library for messages translation
 
 ### Security
 The user needs to be authorized in order to use the API REST. 
 For rapid development and just for demoing pursopues basic-auth is used
 ```
-user@mock.es for read access 
-admin@mock.es for read/write access
+user@mock.es (No password) for read access 
+admin@mock.es (No password) for read/write access
 ```
 
 ## ️ Author
@@ -85,4 +85,3 @@ admin@mock.es for read/write access
 
 ### SuperherosAPI Docker repository
 - https://hub.docker.com/repository/docker/porryman/microservice-docker-micsuperheros-api-rest
-
