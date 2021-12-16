@@ -4,7 +4,7 @@ A small API for managing superheros as part as a challenge for mindata. It takes
 
 ##  🚀 Getting started
 
-### Third party libraies
+### Third party libraries
 - Spring Boot 2.5.7 
 Spring Boot is Spring's convention-over-configuration solution for creating stand-alone, production-grade Spring-based Applications that you can "just run".
    - spring-boot-starter-web
