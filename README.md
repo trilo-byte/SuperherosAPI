@@ -25,8 +25,8 @@ OpenAPI Generator allows generation of API client libraries (SDK generation), se
 ### 🔧 Installation
 
 To run and develop over this service you must have the following requirements:
-- [OpenJDK 11 (LTS) Hotspot](https://adoptopenjdk.net/installation.html#installers)
-- [Maven 3.6.3](https://archive.apache.org/dist/maven/maven-3/3.6.3/binaries/). Configure your `settings.xml` following [this guide](https://developers.inditex.com/tools/distribution-platform/?target=_blank#setup-maven).
+- [OpenJDK 11](https://adoptopenjdk.net/installation.html#installers)
+- [Maven 3.6.3](https://archive.apache.org/dist/maven/maven-3/3.6.3/binaries/).
 - Docker
 
 Run `mvn clean verify` to check that everything works.
