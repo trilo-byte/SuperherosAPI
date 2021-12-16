@@ -1,6 +1,6 @@
 # SuperherosAPI
 
-A small API for managing superheros as part as a challenge for mindata. It takes advantage of spring boot for rapid development. An imagen has been "dockerized" ready to give it a go.
+A small API for managing superheros as part as a challenge for mindata. It takes advantage of spring boot for rapid development. An image has been "dockerized" ready to give it a go.
 
 ##  🚀 Getting started
 
