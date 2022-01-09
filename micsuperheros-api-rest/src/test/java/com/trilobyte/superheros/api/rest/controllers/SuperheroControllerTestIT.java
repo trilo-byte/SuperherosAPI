@@ -62,7 +62,7 @@ class SuperheroControllerTestIT {
     final String superpower = "Flight";
     createSuperHeroEntity(name, universe, superpower);
 
-    mvc.perform(get("/superheros/" + id).contentType(MediaType.APPLICATION_JSON))
+    mvc.perform(get(new StringBuilder("/superheros/").append(id).toString()).contentType(MediaType.APPLICATION_JSON))
         .andDo(print())
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -75,7 +75,7 @@ class SuperheroControllerTestIT {
   void givenAnInValidId_whenGetById_thenReturnsA404() throws Exception {
     final long id = 1L;
 
-    mvc.perform(get("/superheros/" + id).contentType(MediaType.APPLICATION_JSON))
+    mvc.perform(get(new StringBuilder("/superheros/").append(id).toString()).contentType(MediaType.APPLICATION_JSON))
         .andDo(print())
         .andExpect(status().isNotFound());
   }
@@ -224,7 +224,7 @@ class SuperheroControllerTestIT {
     final String superpower = "Flight";
     createSuperHeroEntity(name, universe, superpower);
 
-    mvc.perform(delete("/superheros/" + id).contentType(MediaType.APPLICATION_JSON))
+    mvc.perform(delete(new StringBuilder("/superheros/").append(id).toString()).contentType(MediaType.APPLICATION_JSON))
         .andDo(print())
         .andExpect(status().isNoContent());
   }
@@ -245,13 +245,13 @@ class SuperheroControllerTestIT {
 
   @Test
   void givenAValidSuperhero_whenUpdateSuperhero_thenReturnsASuperhero() throws Exception {
-    final String name = "superman";
+    final StringBuilder name = new StringBuilder("superman");
     final String universe = "other";
     final String universe2 = "marvel";
     final String superpower = "Flight";
 
-    createSuperHeroEntity(name, universe, superpower);
-    final SuperheroReqDto reqDto = createSuperHeroReqDto(name.concat("2"), universe2, superpower);
+    createSuperHeroEntity(name.toString(), universe, superpower);
+    final SuperheroReqDto reqDto = createSuperHeroReqDto(name.append("2").toString(), universe2, superpower);
     final ObjectMapper mapper = new ObjectMapper();
     final String reqDtoJson = mapper.writeValueAsString(reqDto);
 
@@ -259,7 +259,7 @@ class SuperheroControllerTestIT {
         .andDo(print())
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.name", is(name.concat("2"))))
+        .andExpect(jsonPath("$.name", is(name.toString())))
         .andExpect(jsonPath("$.universe", is(universe2)))
         .andExpect(jsonPath("$.superpowers[0]", is(superpower)));
   }

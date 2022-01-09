@@ -136,7 +136,7 @@ public class ApplicationException extends RuntimeException {
     @Override
     public String toString() {
       if (StringUtils.hasText(fieldName)) {
-        return fieldName + ": " + text;
+        return new StringBuilder(fieldName).append(": ").append(text).toString();
       }
       return text;
     }
