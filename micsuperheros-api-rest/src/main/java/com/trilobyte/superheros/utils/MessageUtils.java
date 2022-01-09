@@ -2,6 +2,7 @@ package com.trilobyte.superheros.utils;
 
 import java.util.Locale;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -9,6 +10,7 @@ import org.springframework.util.StringUtils;
 
 import com.trilobyte.superheros.exceptions.ApplicationException.ExceptionMessage;
 
+@Slf4j
 public final class MessageUtils {
 
   private MessageUtils() {
@@ -16,11 +18,10 @@ public final class MessageUtils {
   }
 
   /**
-   * Traduce (si procede) un mensaje que hace referencia a un propery de mensajes (el mensaje va
+   * Traduce (si procede) un mensaje que hace referencia a un property de mensajes (el mensaje va
    * entre llaves {...})
    *
    * @param messageSource Fuente de mensajes de la aplicación
-   * @param locale Locale del mensaje
    * @param message Objeto que contiene la información del mensaje
    * @return mensaje final
    */
@@ -43,7 +44,7 @@ public final class MessageUtils {
     final var msg = translateMessage(locale, messageSource, message.getText(), message.getParams());
     final var label = message.getFieldName();
     if (StringUtils.hasText(label)) {
-      return label + ": " + msg;
+      return new StringBuilder(label).append(": ").append(msg).toString();
     }
     return msg;
   }
@@ -66,7 +67,7 @@ public final class MessageUtils {
       try {
         return messageSource.getMessage(key, params, locale);
       } catch (final NoSuchMessageException ignore) {
-        // nada
+        log.warn(String.format("There is no translation for: {0}", messageSource));
       }
     }
     return msg;

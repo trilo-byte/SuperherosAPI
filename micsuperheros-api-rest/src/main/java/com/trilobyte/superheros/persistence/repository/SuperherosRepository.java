@@ -14,7 +14,7 @@ public interface SuperherosRepository
   public static Specification<SuperheroEntity> nameContains(final String name) {
     if (StringUtils.hasText(name)) {
       return (hero, cq, cb) ->
-          cb.like(cb.lower(hero.get(SuperheroEntity_.NAME)), "%" + name.toLowerCase() + "%");
+          cb.like(cb.lower(hero.get(SuperheroEntity_.NAME)), new StringBuilder("%").append(name.toLowerCase()).append("%").toString());
     }
     return null;
   }

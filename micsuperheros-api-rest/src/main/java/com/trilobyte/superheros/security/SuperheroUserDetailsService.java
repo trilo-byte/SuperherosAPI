@@ -27,7 +27,8 @@ public class SuperheroUserDetailsService implements UserDetailsService {
             .findOneByEmail(email)
             .orElseThrow(
                 () -> {
-                  throw new UsernameNotFoundException("User not found with email : " + email);
+                  throw new UsernameNotFoundException(
+                          new StringBuilder("User not found with email : ").append(email).toString());
                 });
 
     final String username = userFind.getEmail();
@@ -38,7 +39,7 @@ public class SuperheroUserDetailsService implements UserDetailsService {
         userFind
             .getRoles()
             .stream()
-            .map(r -> new SimpleGrantedAuthority("ROLE_" + r.getRole()))
+            .map(r -> new SimpleGrantedAuthority(new StringBuilder("ROLE_").append(r.getRole()).toString()))
             .collect(Collectors.toSet());
     return new SuperheroUserPrincipal(username, pwd, authorities);
   }
